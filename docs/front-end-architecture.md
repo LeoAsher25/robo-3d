@@ -1,4 +1,4 @@
-# CashCanvas Frontend Architecture Document
+# Yasuo Three.js Meme Simulator Frontend Architecture Document
 
 ## Table of Contents
 
@@ -6,266 +6,129 @@
 - [Overall Frontend Philosophy & Patterns](https://www.google.com/search?q=%23overall-frontend-philosophy--patterns)
 - [Detailed Frontend Directory Structure](https://www.google.com/search?q=%23detailed-frontend-directory-structure)
 - [Component Breakdown & Implementation Details](https://www.google.com/search?q=%23component-breakdown--implementation-details)
-  - [Component Naming & Organization](https://www.google.com/search?q=%23component-naming--organization)
-  - [Template for Component Specification](https://www.google.com/search?q=%23template-for-component-specification)
 - [State Management In-Depth](https://www.google.com/search?q=%23state-management-in-depth)
-  - [Store Structure / Slices](https://www.google.com/search?q=%23store-structure--slices)
-  - [Key Selectors](https://www.google.com/search?q=%23key-selectors)
-  - [Key Actions / Reducers / Thunks](https://www.google.com/search?q=%23key-actions--reducers--thunks)
 - [API Interaction Layer](https://www.google.com/search?q=%23api-interaction-layer)
-  - [Client/Service Structure](https://www.google.com/search?q=%23clientservice-structure)
-  - [Error Handling & Retries (Frontend)](https://www.google.com/search?q=%23error-handling--retries-frontend)
 - [Routing Strategy](https://www.google.com/search?q=%23routing-strategy)
-  - [Route Definitions](https://www.google.com/search?q=%23route-definitions)
-  - [Route Guards / Protection](https://www.google.com/search?q=%23route-guards--protection)
 - [Build, Bundling, and Deployment](https://www.google.com/search?q=%23build-bundling-and-deployment)
-  - [Build Process & Scripts](https://www.google.com/search?q=%23build-process--scripts)
-  - [Key Bundling Optimizations](https://www.google.com/search?q=%23key-bundling-optimizations)
-  - [Deployment to CDN/Hosting](https://www.google.com/search?q=%23deployment-to-cdnhosting)
-- [Frontend Testing Strategy](https://www.google.com/search?q=%23frontend-testing-strategy)
-  - [Component Testing](https://www.google.com/search?q=%23component-testing)
-  - [UI Integration/Flow Testing](https://www.google.com/search?q=%23ui-integrationflow-testing)
-  - [End-to-End UI Testing Tools & Scope](https://www.google.com/search?q=%23end-to-end-ui-testing-tools--scope)
 - [Accessibility (AX) Implementation Details](https://www.google.com/search?q=%23accessibility-ax-implementation-details)
 - [Performance Considerations](https://www.google.com/search?q=%23performance-considerations)
-- [Internationalization (i18n) and Localization (l10n) Strategy](https://www.google.com/search?q=%23internationalization-i18n-and-localization-l10n-strategy)
-- [Feature Flag Management](https://www.google.com/search?q=%23feature-flag-management)
-- [Frontend Security Considerations](https://www.google.com/search?q=%23frontend-security-considerations)
-- [Browser Support and Progressive Enhancement](https://www.google.com/search?q=%23browser-support-and-progressive-enhancement)
 - [Change Log](https://www.google.com/search?q=%23change-log)
 
 ## Introduction
 
-This document details the technical architecture specifically for the frontend of CashCanvas. It complements the main CashCanvas Architecture Document and the UI/UX Specification. This document details the frontend architecture and **builds upon the foundational decisions** (e.g., overall tech stack, CI/CD, primary testing tools) defined in the main CashCanvas Architecture Document (`docs/architecture.md` or linked equivalent). **Frontend-specific elaborations or deviations from general patterns must be explicitly noted here.** The goal is to provide a clear blueprint for frontend development, ensuring consistency, maintainability, and alignment with the overall system design and user experience goals.
+Tài liệu này trình bày chi tiết kiến trúc kỹ thuật cho phần frontend của dự án "Yasuo Three.js Meme Simulator". Nó được xây dựng dựa trên các yêu cầu từ **Product Requirements Document (PRD)** và các đặc tả từ **UI/UX Specification**. Mục tiêu của tài liệu này là cung cấp một bản thiết kế chi tiết để đội ngũ phát triển (hoặc các đặc vụ AI phát triển) có thể xây dựng một ứng dụng nhất quán, dễ bảo trì và có hiệu suất cao.
 
-- **Link to Main Architecture Document (REQUIRED):** `docs/architecture.md`
+- **Link to Main Architecture Document (REQUIRED):** `docs/architecture.md` (Do đặc thù dự án, tài liệu này sẽ tập trung vào frontend, các quyết định backend sẽ tham khảo từ PRD).
 - **Link to UI/UX Specification (REQUIRED if exists):** `docs/front-end-spec.md`
-- **Link to Primary Design Files (Figma, Sketch, etc.) (REQUIRED if exists):** `https://www.figma.com/design/ZP67IINPNDk2Fp2W84o1Il/Expense-management-app-ui-kit--Community-?node-id=1-198&p=f&t=bvenrH7bd6GUFBx6-0`
-- **Link to Deployed Storybook / Component Showcase (if applicable):** {To be created}
+- **Link to Primary Design Files (Figma, Sketch, etc.) (REQUIRED if exists):** _{Sẽ được cung cấp sau}_
 
 ## Overall Frontend Philosophy & Patterns
 
-- **Framework & Core Libraries:** React Native 0.7x with the Hermes engine. These are derived from the 'Definitive Tech Stack Selections' in the main Architecture Document. This section elaborates on _how_ these choices are applied specifically to the frontend.
-- **Component Architecture:** Atomic Design principles will be followed. We will create base, reusable components and compose them into more complex feature components. The overall structure will separate presentational components from container components that handle logic and state.
-- **State Management Strategy:** Redux Toolkit will be used for managing global application state (e.g., user session, transactions, goals). Local component state will be handled with `useState` and `useReducer` hooks for UI-specific concerns. This is referenced from main Architecture Document and detailed further in "State Management In-Depth" section.
-- **Data Flow:** A unidirectional data flow will be enforced via Redux, ensuring a predictable state container. Asynchronous data fetching will be managed using Redux Thunks.
-- **Styling Approach:** **Tailwind CSS** (via `twrnc` or similar library) will be the primary styling solution to allow for rapid UI development and easy adherence to the design system. Configuration File(s): `tailwind.config.js`. Key conventions: "Utility-first approach. Custom component classes will be composed of utilities. Theme extensions for colors, fonts, and spacing will be defined in `tailwind.config.js`."
-- **Key Design Patterns Used:** Provider Pattern (for themes and state), Hooks (for reusable logic), Container/Presentational Pattern, Service Pattern (for API calls). These patterns are to be consistently applied.
+- **Framework & Core Libraries:**
+  - **React 18+** với **Next.js 14+** (sử dụng App Router). Mặc dù đây là một ứng dụng một trang (SPA), việc sử dụng Next.js cung cấp một cấu trúc dự án vững chắc, tối ưu hóa hình ảnh và một hệ sinh thái mạnh mẽ.
+  - **TypeScript** sẽ được sử dụng trong toàn bộ dự án để đảm bảo an toàn kiểu dữ liệu.
+  - **Three.js** sẽ được tích hợp thông qua **`@react-three/fiber`** (R3F) và **`@react-three/drei`**. Đây là cách tiếp cận hiện đại và được khuyến nghị để làm việc với Three.js trong môi trường React.
+- **Component Architecture:** Chúng ta sẽ áp dụng một cấu trúc component dựa trên chức năng.
+  - Các component 3D sẽ được tổ chức theo cấu trúc của cảnh (Scene Graph), ví dụ: `<Environment>`, `<Character>`, `<Effects>`.
+  - Các component 2D (nếu có) sẽ tuân theo mô hình component React tiêu chuẩn.
+- **State Management Strategy:**
+  - Với MVP, trạng thái đơn giản của UI có thể được quản lý bằng `useState` của React.
+  - Đối với trạng thái phức tạp hơn của nhân vật (vị trí, trạng thái hành động, v.v.) và các trạng thái toàn cục khác, **Zustand** được chọn làm thư viện quản lý trạng thái. Nó nhẹ, đơn giản, dễ sử dụng và hoạt động rất tốt với `@react-three/fiber`.
+- **Styling Approach:**
+  - **Tailwind CSS** sẽ được sử dụng cho mọi yếu tố UI 2D (ví dụ: lớp phủ hướng dẫn). Nó cho phép tạo kiểu nhanh chóng và nhất quán.
+  - Phần lớn "phong cách" của ứng dụng nằm trong cảnh 3D (mô hình, vật liệu, ánh sáng, hiệu ứng).
 
 ## Detailed Frontend Directory Structure
 
+Dự án sẽ tuân theo cấu trúc của Next.js App Router.
+
 ```plaintext
 src/
-├── api/                    # API service definitions and client configuration. MUST contain all API interaction logic.
-│   ├── apiClient.ts        # Axios client setup and interceptors.
-│   ├── authService.ts      # Authentication related API calls.
-│   ├── transactionService.ts # Transaction related API calls.
-│   └── goalService.ts        # Goals related API calls.
-├── assets/                 # Static assets like images, fonts. MUST contain all static resources.
-│   ├── fonts/
-│   └── images/
-├── components/             # Shared, reusable UI components.
-│   ├── ui/                 # Base UI elements (Button, Input, Card). MUST contain only generic, presentational UI elements.
-│   ├── layout/             # Layout components (Header, TabBar). MUST contain components structuring page layouts.
-│   └── charts/             # Reusable chart components.
-├── features/               # Feature-specific logic, hooks, non-global state, services, and components.
-│   └── auth/
-│       ├── components/     # Components used exclusively by the auth feature.
-│       └── screens/        # Screen components for the auth feature (Login, Signup).
-├── hooks/                  # Global, sharable custom React Hooks. MUST be generic.
-│   └── useDebounce.ts
-├── navigation/             # Navigation configuration. MUST contain all React Navigation setup.
-│   ├── AppNavigator.tsx    # Main navigator deciding between Auth and Main flows.
-│   ├── AuthStack.tsx       # Navigator for Login, Signup, Onboarding screens.
-│   └── MainTabNavigator.tsx  # Bottom tab navigator for the main app.
-├── screens/                # Top-level screen components for the main app.
-│   ├── DashboardScreen.tsx
-│   ├── TransactionHistoryScreen.tsx
-│   └── SettingsScreen.tsx
-├── store/                  # Global Redux state management setup.
-│   ├── index.ts            # Main store configuration.
-│   ├── rootReducer.ts      # Root reducer combining all slices.
-│   └── slices/             # Individual state slices.
-│       ├── sessionSlice.ts
-│       └── transactionSlice.ts
-├── styles/                 # Global styles, theme configurations.
-│   └── theme.ts
-└── utils/                  # Utility functions, helpers, constants. MUST contain pure functions.
-    └── formatCurrency.ts
+├── app/                      # Next.js App Router: Các trang và layout
+│   ├── layout.tsx            # Layout gốc của ứng dụng
+│   └── page.tsx              # Trang chính của ứng dụng
+├── components/               # Các component React có thể tái sử dụng
+│   ├── ui/                   # Các component UI 2D cơ bản (nếu cần)
+│   └── 3d/                   # Các component 3D (liên quan đến Three.js/R3F)
+│       ├── Scene.tsx         # Component R3F Canvas chính, nơi chứa toàn bộ cảnh 3D
+│       ├── Character.tsx     # Component điều khiển logic và mô hình nhân vật
+│       └── Environment.tsx   # Component thiết lập môi trường (ánh sáng, mặt đất)
+├── hooks/                    # Các custom React Hooks
+│   └── useKeyboardControls.ts# Hook để xử lý input từ bàn phím
+├── stores/                   # Các store của Zustand để quản lý trạng thái
+│   └── useCharacterStore.ts  # Store cho trạng thái của nhân vật
+└── lib/                      # Các hàm tiện ích, hằng số
+    └── constants.ts
 ```
-
-### Notes on Frontend Structure:
-
-The structure is feature-oriented to promote modularity and scalability. Global components are separated from feature-specific components. Navigation has its own dedicated folder to manage all routing logic. AI Agent MUST adhere to this defined structure strictly.
 
 ## Component Breakdown & Implementation Details
 
-This section outlines the conventions and templates for defining UI components. The AI agent MUST follow the "Template for Component Specification" below whenever a new component is identified for development.
+Đây là đặc tả cho một số component cốt lõi. Các component khác sẽ được tạo ra khi cần thiết và phải tuân theo mẫu tương tự.
 
-### Component Naming & Organization
+#### Component: `Character.tsx`
 
-- **Component Naming Convention:** **PascalCase for files and component names: `TransactionCard.tsx`**. All component files MUST follow this convention.
-- **Organization:** Globally reusable components in `src/components/ui/` or `src/components/layout/`. Feature-specific components are co-located within their feature directory.
+- **Purpose:** Chịu trách nhiệm tải, hiển thị và điều khiển hoạt ảnh của mô hình Yasuo. Nó cũng nhận các lệnh từ store trạng thái để thực hiện hành động.
+- **Source File(s):** `src/components/3d/Character.tsx`
+- **Props:**
+  | Prop Name | Type | Required? | Description |
+  | :--- | :--- | :--- | :--- |
+  | `modelPath` | `string` | Yes | Đường dẫn đến tệp mô hình 3D (GLB/GLTF). |
+- **Internal State:** Sử dụng `useRef` cho đối tượng group của Three.js, và `useAnimations` từ `@react-three/drei` để quản lý các animation clip.
+- **Actions Triggered:** Lắng nghe sự thay đổi của `useCharacterStore` để kích hoạt các hoạt ảnh (ví dụ: `playAction('attack_Q')`).
 
-### Template for Component Specification
+#### Component: `Scene.tsx`
 
-#### Component: `TransactionCard`
-
-- **Purpose:** To display a summary of a single transaction in a list. MUST be clear and concise.
-- **Source File(s):** `src/components/ui/TransactionCard.tsx`. MUST be the exact path.
-- **Visual Reference:** Figma link to the transaction list component. REQUIRED.
-- **Props (Properties):**
-  | Prop Name | Type | Required? | Default Value | Description |
-  | :------------ | :--------------------------------------- | :-------- | :------------ | :------------------------------------------------------------------------ |
-  | `iconName` | `string` | Yes | N/A | The name of the icon representing the category. MUST be a valid icon name. |
-  | `category` | `string` | Yes | N/A | The name of the transaction category (e.g., "Food", "Salary"). |
-  | `description` | `string` | Yes | N/A | A short description of the transaction. |
-  | `amount` | `number` | Yes | N/A | The transaction amount. Positive for income, negative for expense. |
-  | `date` | `string` | Yes | N/A | The date of the transaction in ISO format. |
-  | `onPress` | `() => void` | Yes | N/A | Callback function when the card is pressed. |
+- **Purpose:** Component gốc cho trải nghiệm 3D. Nó chứa R3F `<Canvas>` và thiết lập các thành phần cơ bản của cảnh.
+- **Source File(s):** `src/components/3d/Scene.tsx`
 - **Key UI Elements / Structure:**
-  ```html
-  <TouchableOpacity
-    class="flex-row items-center p-4 bg-white rounded-lg shadow-sm">
-    <Icon name="{iconName}" class="text-xl" />
-    <View class="flex-1 ml-4">
-      <Text class="font-bold">{category}</Text>
-      <Text class="text-gray-500">{description}</Text>
-    </View>
-    <View class="items-end">
-      <Text class="{amount > 0 ? 'text-green-500' : 'text-gray-800'} font-bold"
-        >{formattedAmount}</Text
-      >
-      <Text class="text-gray-500">{formattedDate}</Text>
-    </View>
-  </TouchableOpacity>
+  ```jsx
+  <Canvas>
+    <Environment />
+    <Character modelPath="/models/yasuo.glb" />
+    {/* Các hiệu ứng khác sẽ được thêm vào đây */}
+  </Canvas>
   ```
-- **Styling Notes:**
-  - MUST use Tailwind CSS utility classes. The container uses `p-4 bg-white rounded-lg shadow-sm`. The amount text color MUST be conditional based on the value (income/expense). AI Agent should prioritize direct utility class usage.
-- **Accessibility Notes:**
-  - The component MUST be wrapped in a touchable element with `accessible={true}` and an `accessibilityLabel` describing the full transaction details, e.g., `"Transaction: {category}, {description}, {amount} on {date}"`.
-
----
 
 ## State Management In-Depth
 
-- **Chosen Solution:** Redux Toolkit
-- **Decision Guide for State Location:**
-  - **Global State (Redux Toolkit):** User session, auth token, transactions, goals, reminders, notifications. MUST be used for data shared across screens.
-  - **Local Component State (`useState`):** Form inputs, modal visibility, UI-specific toggles. MUST be the default choice unless criteria for Global State are met.
-
-### Store Structure / Slices
-
-- **Core Slice Example (`sessionSlice` in `src/store/slices/sessionSlice.ts`):**
-  - **Purpose:** Manages user session, authentication status, and basic user profile info accessible globally.
-  - **State Shape (Interface/Type):**
-    ```typescript
-    interface SessionState {
-      user: { id: string; email: string } | null;
-      token: string | null;
-      status: "idle" | "loading" | "succeeded" | "failed";
-      error: string | null;
-    }
-    ```
-- **Feature Slice Template (`{featureName}Slice` in `src/store/slices/{featureName}Slice.ts`):**
-  - **Purpose:** To be filled out for features like transactions, goals, etc.
-  - **Export:** All actions and selectors MUST be exported.
+- **Chosen Solution:** Zustand.
+- **Store Structure / Slices:**
+  - **`useCharacterStore.ts`**
+    - **Purpose:** Quản lý tất cả trạng thái liên quan đến nhân vật.
+    - **State Shape (Interface/Type):**
+      ```typescript
+      interface CharacterState {
+        position: [number, number, number];
+        action: string | null; // e.g., 'Q_ATTACK', 'MOVE'
+        targetPosition: [number, number, number] | null;
+        setAction: (action: string | null) => void;
+        moveTo: (position: [number, number, number]) => void;
+      }
+      ```
 
 ## API Interaction Layer
 
-### Client/Service Structure
-
-- **HTTP Client Setup:** An Axios instance in `src/api/apiClient.ts`. **MUST** include: Base URL from an environment variable (`API_BASE_URL`), default headers, and interceptors for automatically injecting the auth token from the Redux store and for standardizing error handling.
-- **Service Definitions (Example):**
-  - **`authService.ts` (in `src/api/authService.ts`):**
-    - **Purpose:** Handles all API interactions related to authentication.
-    - **Functions:** `login(credentials): Promise<{user, token}>`, `signup(details): Promise<{user, token}>`. Each service function MUST have explicit types and call the configured `apiClient`.
-
-### Error Handling & Retries (Frontend)
-
-- **Global Error Handling:** The Axios response interceptor will catch API errors. 401 errors will trigger a logout action. 5xx errors will dispatch an action to show a global error banner/toast.
-- **Specific Error Handling:** Forms will handle 4xx validation errors locally to display messages on the relevant fields.
+Không áp dụng cho MVP. Nếu các tính năng post-MVP (ví dụ: lưu trữ chỉ số) được triển khai, một lớp service sẽ được tạo trong thư mục `src/services/` để tương tác với backend NestJS.
 
 ## Routing Strategy
 
-- **Routing Library:** React Navigation
-- **Navigator Structure:** A main stack navigator (`AppNavigator`) will conditionally render either the `AuthStack` (for onboarding/login/signup) or the `MainTabNavigator` based on the user's authentication status from the Redux store.
-
-### Route Definitions
-
-| Path Pattern            | Component/Screen (`src/screens/...` or `src/features/...`) | Protection      | Notes                    |
-| :---------------------- | :--------------------------------------------------------- | :-------------- | :----------------------- |
-| `Onboarding`            | `AuthStack`                                                | `Public`        |                          |
-| `Login`                 | `AuthStack`                                                | `Public`        |                          |
-| `Signup`                | `AuthStack`                                                | `Public`        |                          |
-| `Dashboard`             | `MainTabNavigator`                                         | `Authenticated` |                          |
-| `TransactionHistory`    | `MainTabNavigator`                                         | `Authenticated` |                          |
-| `Goals`                 | `MainTabNavigator`                                         | `Authenticated` |                          |
-| `TransactionDetail/:id` | `(within a stack)`                                         | `Authenticated` | Parameter: `id` (string) |
-
-### Route Guards / Protection
-
-- **Authentication Guard:** The `AppNavigator` will act as the guard. It will listen to the `sessionSlice.token` from the Redux store. If a token exists, it renders the `MainTabNavigator`; otherwise, it renders the `AuthStack`. This ensures unauthenticated users cannot access the main app screens.
+Đây là một ứng dụng một trang (Single Page Application). Không yêu cầu thư viện định tuyến cho MVP.
 
 ## Build, Bundling, and Deployment
 
-- **Build Process & Scripts:** Standard React Native build process using `npx react-native run-ios` and `npx react-native run-android`. `package.json` will contain scripts for `start`, `build:ios`, `build:android`, `test`, and `lint`.
-- **Environment Configuration Management:** Using `react-native-config` to manage environment variables (`.env` files) for different environments (dev, staging, prod). AI Agent MUST NOT generate code that hardcodes environment-specific values.
-- **Deployment to CDN/Hosting:** Deployment will be to the Apple App Store and Google Play Store. A CI/CD pipeline using GitHub Actions and Fastlane will be configured to automate the build and release process.
-
-## Frontend Testing Strategy
-
-- **Link to Main Overall Testing Strategy:** `docs/architecture.md#overall-testing-strategy`
-
-### Component Testing
-
-- **Tools:** Jest with React Native Testing Library.
-- **Focus:** Rendering components with various props, user interactions (`fireEvent`, `userEvent`), and asserting on the rendered output. Snapshot testing MUST be used sparingly.
-- **Location:** `*.test.tsx` files co-located with the component files in a `__tests__` subdirectory.
-
-### End-to-End UI Testing Tools & Scope
-
-- **Tools:** Detox
-- **Scope (Frontend Focus):** Key user journeys MUST be covered: "User registration and login flow", "Adding an income and an expense transaction and verifying they appear on the dashboard", "Creating a savings goal".
+- **Build Process & Scripts:** Sử dụng các script tiêu chuẩn của Next.js:
+  - `npm run dev`: Chạy môi trường phát triển.
+  - `npm run build`: Build ứng dụng cho production.
+  - `npm run start`: Chạy server production sau khi build.
+- **Deployment to CDN/Hosting:** Khuyến nghị triển khai lên **Vercel** hoặc **Netlify** để tận dụng khả năng tích hợp CI/CD liền mạch với Next.js/React.
 
 ## Accessibility (AX) Implementation Details
 
-- **Semantic HTML:** Not applicable. Instead, **AI Agent MUST prioritize using React Native's accessibility props** on components (`<View>`, `<Text>`, `<TouchableOpacity>`).
-- **ARIA Implementation:** The agent MUST use `accessibilityLabel` for interactive elements without visible text, `accessibilityHint` for extra instructions, and `accessibilityRole` (e.g., 'button', 'header') to define the element's purpose.
-- **Focus Management:** Focus will be managed using standard React Native focus capabilities. For modals, focus must be trapped within the modal content.
-- **Testing Tools for AX:** Automated tests with `jest-axe` will be integrated into the CI pipeline to catch basic violations. Manual testing with VoiceOver (iOS) and TalkBack (Android) is required for critical flows.
+- **Semantic HTML:** Sẽ được sử dụng cho bất kỳ cấu trúc HTML nào bên ngoài canvas 3D.
+- **Canvas Accessibility:** Thẻ `<Canvas>` sẽ được cung cấp một `aria-label` mô tả (ví dụ: "Interactive 3D Yasuo character simulation").
 
 ## Performance Considerations
 
-- **Image Optimization:** Use `react-native-fast-image` for caching and performant image loading. SVGs for all icons.
-- **Minimizing Re-renders:** `React.memo` MUST be used for pure components, especially in lists. Selectors for global state MUST be memoized with Reselect.
-- **Virtualization:** `FlatList` and `SectionList` MUST be used for all transaction/goal/reminder lists to ensure memory efficiency. The `getItemLayout` prop should be used where possible to optimize rendering.
-
-## Internationalization (i18n) and Localization (l10n) Strategy
-
-- **Requirement Level:** Not a requirement for MVP.
-- **Chosen i18n Library/Framework:** If added post-MVP, `i18next` with `react-i18next` would be the chosen solution.
-
-## Feature Flag Management
-
-- **Requirement Level:** Not a primary architectural concern for this project at this time.
-
-## Frontend Security Considerations
-
-- **Secure Token Storage & Handling:**
-  - **Storage Mechanism:** **MUST use a secure storage library like `react-native-keychain`** to store JWTs. `AsyncStorage` is forbidden for storing sensitive tokens.
-  - **Token Refresh:** The `apiClient`'s interceptor will handle 401 errors to trigger a token refresh flow.
-- **Client-Side Data Validation:**
-  - **Purpose:** For UX improvement ONLY. **All critical data validation MUST occur server-side**.
-  - **Implementation:** Use a library like `Formik` with `Yup` for form state management and validation.
-
-## Browser Support and Progressive Enhancement
-
-- **Target Browsers:** Not applicable. This is a native mobile application.
-- **Target OS Versions:** iOS 15+ and Android 8.0+ (API level 26+).
-
-## Change Log
-
-| Change        | Date       | Version | Description               | Author    |
-| :------------ | :--------- | :------ | :------------------------ | :-------- |
-| Initial Draft | 2025-07-14 | 1.0     | First draft based on spec | Jane (DA) |
+- **Model Optimization:** Mô hình 3D phải được tối ưu hóa (giảm số lượng polygon) và sử dụng nén **Draco** (được hỗ trợ bởi `@react-three/drei`) để giảm kích thước tệp.
+- **Draw Calls:** Giữ cho cảnh đơn giản và sử dụng kỹ thuật "instancing" (nhân bản đối tượng) cho các hiệu ứng lặp lại để giảm số lượng lệnh vẽ (draw calls).
+- **Lazy Loading:** Sử dụng `React.lazy` và `Suspense` để tải các component nặng một cách lười biếng nếu ứng dụng trở nên phức tạp hơn.

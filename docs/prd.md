@@ -1,195 +1,92 @@
-# CashCanvas Product Requirements Document (PRD)
+# Yasuo Three.js Meme Simulator Product Requirements Document (PRD)
 
 ## Goal, Objective and Context
 
-[cite_start]The primary goal is to provide users with immediate financial clarity and control over their personal cash flow through a simple, intuitive, and secure mobile-first experience. [cite: 1] [cite_start]The project will solve the common problem of individuals struggling to maintain a clear and real-time understanding of their finances due to overly complex or clunky tools. [cite: 1] [cite_start]The MVP aims to deliver a cross-platform mobile app that allows for easy tracking of income and expenses and provides an at-a-glance dashboard of the user's financial status. [cite: 1]
+**Goal:**
+Create a humorous and technically impressive 3D web experience featuring a "Yasuo in a wheelchair" meme to serve as a unique portfolio piece, demonstrating proficiency in React, Three.js, and optionally NestJS for backend extensions.
+
+**Objective:**
+For the MVP (Minimum Viable Product), the objective is to launch a web application that renders the 3D character model in a scene and allows users to trigger a set of predefined, meme-worthy animations for abilities (Q, W, E, R) and spells (F, D) via keyboard input. The application will be built with a clear, scalable structure that is easy to understand and extend.
+
+**Context:**
+The project leverages the popularity of the League of Legends character Yasuo and internet meme culture to create an engaging and shareable application. It is designed to showcase advanced front-end development skills (specifically with React and Three.js) in a more entertaining format than a standard application. The target audience includes tech recruiters, other developers, and the gaming community, so the final product must be both technically sound and highly entertaining.
 
 ## Functional Requirements (MVP)
 
-### 🔰 **1. Onboarding Experience**
-
-- **Splash Screen:** App must display logo and loading screen on startup
-- **Onboarding Slides:** Must present 3 introduction screens explaining key features:
-  - Note Down Expenses
-  - Simple Money Management
-  - Easy to Track and Analyze
-- **Welcome Flow:** Must include "LET'S GO" button to proceed to authentication
-
-### 🔐 **2. User Authentication**
-
-- **Login Screen:** Users must be able to enter username/password with show/hide password toggle
-- **Error Handling:** System must display clear error messages for invalid credentials
-- **Forgot Password:** Users must be able to reset password with strength requirements
-- **Password Update Confirmation:** System must provide success feedback for password changes
-
-### 📊 **3. Overview Dashboard**
-
-- **Main Dashboard:** Must display comprehensive overview showing:
-  - Total income and expenses
-  - Current balance
-  - Monthly financial summary
-  - Recent transaction entries
-- **Expense Analytics:** Must provide:
-  - Daily/monthly expense charts
-  - Category-based spending breakdown (pie charts)
-  - Visual spending trends
-- **Quick Actions:** Must provide easy access to add income/expense
-
-### 💰 **4. Transaction Management**
-
-- **Add Income:** Users must be able to record income with amount, date, description
-- **Add Expense:** Users must be able to record expenses with categorization
-- **Transaction History:** Users must be able to view chronological list of all transactions
-- **Transaction Details:** Users must be able to view detailed information of individual entries
-- **Basic Categorization:** Users must be able to assign transactions to predefined categories
-
-### 🎯 **5. Savings & Goals**
-
-- **Savings Overview:** Must display total saved amount and monthly savings targets
-- **Goal Management:** Users must be able to:
-  - Create financial goals with target amounts
-  - Set deadlines for goal completion
-  - Track progress towards goals
-- **Contribution Types:** Must support Daily, Weekly, Monthly contribution options
-- **Goal Deadlines:** Must allow flexible deadline setting for goal completion
-
-### ⏰ **6. Payment Reminders**
-
-- **Reminders List:** Users must be able to view all active payment reminders
-- **Create Reminders:** Users must be able to set up new payment reminders
-- **Bill Selection:** Users must be able to choose bill types and categories
-- **Frequency Settings:** Users must be able to configure reminder frequency
-- **Date Selection:** Users must be able to set specific reminder dates and times
-
-### 🔔 **7. Notifications**
-
-- **Notification Center:** Must provide centralized notification management
-- **Payment Alerts:** Must send reminders for upcoming bills and payments
-- **Goal Updates:** Must provide progress notifications for savings goals
-- **Transaction Confirmations:** Must send success notifications for completed actions
+- The application must render a 3D scene with a ground plane and basic lighting.
+- A 3D model representing "Yasuo in a wheelchair" must be loaded and displayed in the scene.
+- The application must capture keyboard inputs for the keys: Q, W, E, R, F, and D.
+- Each key press must trigger a unique, corresponding animation or visual effect on the character model or in the scene.
 
 ## Non Functional Requirements (MVP)
 
-- **Performance:** The mobile application must be fast and responsive, with UI interactions completing in under 200ms.
-- **Security:** All user data, especially authentication credentials and financial entries, must be stored securely and transmitted over encrypted channels (HTTPS).
-- **Usability:** The application must be highly intuitive, requiring minimal to no instruction for a user to accomplish the core tasks.
-- **Platform:** The application must run on both iOS and Android platforms, as facilitated by the choice of React Native.
-- **Offline Capability:** Core features must work offline with data synchronization when connection is restored.
-- **Data Persistence:** All user data must be securely stored locally and synchronized with cloud storage.
+- **Performance:** The application should maintain a fluid frame rate (targeting 60 FPS) on modern desktop web browsers (latest stable versions of Chrome, Firefox, and Edge).
+- **Usability:** The experience must be immediately understandable. Controls should be simple (press a key, see an action) and responsive.
+- **Entertainment:** The core focus is on humor and user enjoyment. Animations and effects should be exaggerated and "meme-worthy".
 
 ## User Interaction and Design Goals
 
-- **Overall Vision & Experience:** The app should feel modern, clean, and minimalist, making the user feel empowered and in control, not overwhelmed. [cite_start]The experience should be friendly and approachable. [cite: 1]
-- **Core Screens/Views (Conceptual):**
-  - Onboarding Screens (4 screens)
-  - Login / Sign-up Screen
-  - Main Dashboard with Analytics
-  - Add/Edit Transaction Screen
-  - Transaction History / List Screen
-  - Savings & Goals Screen
-  - Payment Reminders Screen
-  - Notifications Center
-  - Basic Settings Page (e.g., Logout)
-- [cite_start]**Target Devices/Platforms:** The application is a mobile-first responsive web app, targeting modern iOS and Android devices. [cite: 1]
+The primary user interaction is through the keyboard. The design should be clean and simple, focusing all attention on the 3D character and their actions. The overall aesthetic is humorous and self-aware, embracing the meme culture it originates from. The camera will be a 3rd-person view that follows the character. The application is targeted for desktop web browsers.
 
 ## Technical Assumptions
 
-This is where we can list information mostly to be used by the architect to produce the technical details.
+This section provides high-level guidance for the Architect.
 
-- [cite_start]**Frontend Framework:** The mobile application **must** be built using React Native. [cite: 1]
-- [cite_start]**Backend Framework:** The backend API **must** be built using NestJS. [cite:1]
-- [cite_start]**Repository & Service Architecture:** A key decision for the Architect will be the repository structure (e.g., Monorepo, Polyrepo) and the high-level service architecture (e.g., Monolith API, Microservices). [cite: 639, 640] This decision will be based on project goals and scalability needs and must be formally documented in the architecture.
-- [cite_start]**Testing requirements:** The application will require comprehensive testing, including unit, integration, and end-to-end (E2E) tests to ensure functionality and reliability. [cite: 641]
-- **Push Notifications:** Must support push notifications for reminders and alerts
-- **Local Storage:** Must implement secure local storage for offline functionality
-- **Data Synchronization:** Must handle data sync between local and cloud storage
+- **Repository & Service Architecture:** A **Monorepo** structure is recommended to house the React frontend and the optional NestJS backend. This simplifies dependency management and development for the MVP. The initial service architecture will be a **Monolith**, with the React Single Page Application (SPA) as the core component. An optional, co-located NestJS API can be added later without significant architectural changes.
 
 ## Epic Overview
 
-- **Epic 1: Onboarding & User Authentication**
+- **Epic 1: Foundational Scene & Character Rendering**
 
-  - **Goal:** To establish the core project infrastructure and implement a secure way for users to create accounts and sign in.
-  - **Story 1.1:** As a Developer, I want to set up the initial project structure for the NestJS backend and React Native frontend, including version control, dependencies, and a basic CI/CD pipeline, so that we have a stable foundation for development.
-    - {Acceptance Criteria List}
-  - **Story 1.2:** As a new user, I want to see an engaging onboarding experience that explains the app's key features, so that I understand how the app can help me manage my finances.
-    - {Acceptance Criteria List}
-  - **Story 1.3:** As a new user, I want to be able to sign up for an account using my email and a password so that my financial data is kept private and secure.
-    - {Acceptance Criteria List}
-  - **Story 1.4:** As a returning user, I want to be able to log in to my account so that I can access my cash flow dashboard.
-    - {Acceptance Criteria List}
-  - **Story 1.5:** As a user, I want to be able to reset my password if I forget it, so that I can regain access to my account.
-    - {Acceptance Criteria List}
+  - **Goal:** To establish a visible, interactive character in a basic world, setting the stage for all subsequent features.
+  - **Story 1.1:** As a user, I want to see a basic 3D environment so that the character has a world to exist in.
+    - **Acceptance Criteria:**
+      1. A flat plane is rendered as the ground.
+      2. Basic ambient and directional lighting is present to make the scene visible.
+  - **Story 1.2:** As a user, I want to see the "Yasuo in a wheelchair" 3D model rendered in the environment so that the main character of the experience is present.
+    - **Acceptance Criteria:**
+      1. The specified 3D model is loaded into the scene.
+      2. The model is placed at the center of the ground plane.
+      3. The model is correctly scaled and textured.
 
-- **Epic 2: Dashboard & Analytics**
+- **Epic 2: Core Ability Implementation**
 
-  - **Goal:** To deliver the core value of the application by providing users with immediate financial clarity and insights.
-  - **Story 2.1:** As a user, I want to see a comprehensive dashboard with my current cash balance, monthly income vs. expenses, and recent transactions so that I can understand my financial position at a glance.
-    - {Acceptance Criteria List}
-  - **Story 2.2:** As a user, I want to see visual charts and analytics of my spending patterns so that I can identify trends and make informed financial decisions.
-    - {Acceptance Criteria List}
-  - **Story 2.3:** As a user, I want to see my spending broken down by categories so that I can understand where my money is going.
-    - {Acceptance Criteria List}
+  - **Goal:** To allow users to interact with the character and trigger his primary, well-known abilities for an engaging experience.
+  - **Story 2.1:** As a user, I want to press the 'Q' key to see Yasuo perform a sword thrust action so that I can feel like I'm using his main attack.
+    - **Acceptance Criteria:**
+      1. Pressing the 'Q' key triggers a forward-thrusting animation.
+      2. The animation plays smoothly to completion.
+  - **Story 2.2:** As a user, I want to press the 'W' key to see a wind wall appear in front of Yasuo so that I can use his iconic defensive ability.
+    - **Acceptance Criteria:**
+      1. Pressing the 'W' key instantiates a semi-transparent plane object in front of the character model.
+      2. The wall persists for a short duration (e.g., 3-4 seconds) and then disappears.
+  - **Story 2.3:** As a user, I want to press the 'E' key to see Yasuo dash a short distance so that I can experience his signature mobility.
+    - **Acceptance Criteria:**
+      1. Pressing the 'E' key moves the character model forward a fixed distance over a short period.
+      2. A simple particle effect or trail is left behind during the dash.
 
-- **Epic 3: Transaction Management**
+- **Epic 3: Special Moves & Ultimate**
+  - **Goal:** To implement the remaining abilities that complete the character's kit, adding more layers of interaction and humor.
+  - **Story 3.1:** As a user, I want to press the 'F' key to see Yasuo instantly teleport a short distance so that I can use the "Flash" spell.
+    - **Acceptance Criteria:**
+      1. Pressing the 'F' key instantly changes the character's position to a point a fixed distance in front of him.
+      2. A visual "poof" or flash effect appears at the start and end locations.
+  - **Story 3.2:** As a user, I want to press the 'D' key to see a humorous, custom action so that the experience is surprising and funny.
+    - **Acceptance Criteria:**
+      1. Pressing the 'D' key triggers a non-standard animation (e.g., the character spins rapidly in the wheelchair).
+  - **Story 3.3:** As a user, I want to press the 'R' key to see Yasuo perform a simplified or meme-version of his ultimate ability so that his full kit is represented.
+    - **Acceptance Criteria:**
+      1. Pressing the 'R' key triggers a unique, over-the-top animation.
+      2. A text bubble with a meme phrase (e.g., "GGEZ", "HASAGI!") appears above the character.
 
-  - **Goal:** To provide users with easy and efficient ways to track their income and expenses.
-  - **Story 3.1:** As a user, I want to be able to manually add an income transaction, specifying the amount, date, category, and description, so that I can keep a record of my earnings.
-    - {Acceptance Criteria List}
-  - **Story 3.2:** As a user, I want to be able to manually add an expense transaction, specifying the amount, date, category, and description, so that I can keep a record of my spending.
-    - {Acceptance Criteria List}
-  - **Story 3.3:** As a user, I want to view a list of all my past transactions in reverse chronological order so that I can review my spending and earning history.
-    - {Acceptance Criteria List}
-  - **Story 3.4:** As a user, I want to be able to edit or delete my transactions so that I can correct mistakes or update information.
-    - {Acceptance Criteria List}
+## Key Reference Documents
 
-- **Epic 4: Savings & Goals**
-
-  - **Goal:** To help users set and achieve their financial goals through systematic saving.
-  - **Story 4.1:** As a user, I want to create financial goals with target amounts and deadlines so that I can plan for major purchases or savings targets.
-    - {Acceptance Criteria List}
-  - **Story 4.2:** As a user, I want to track my progress towards my savings goals so that I can stay motivated and on track.
-    - {Acceptance Criteria List}
-  - **Story 4.3:** As a user, I want to set up automatic contributions to my goals so that I can build savings consistently.
-    - {Acceptance Criteria List}
-
-- **Epic 5: Payment Reminders**
-
-  - **Goal:** To help users never miss important bill payments through timely reminders.
-  - **Story 5.1:** As a user, I want to create payment reminders for my bills so that I never miss a payment deadline.
-    - {Acceptance Criteria List}
-  - **Story 5.2:** As a user, I want to set different frequencies for my reminders (daily, weekly, monthly) so that I can customize them to my payment schedule.
-    - {Acceptance Criteria List}
-  - **Story 5.3:** As a user, I want to view all my active reminders in one place so that I can manage them effectively.
-    - {Acceptance Criteria List}
-
-- **Epic 6: Notifications**
-  - **Goal:** To keep users informed about their financial activities and important events.
-  - **Story 6.1:** As a user, I want to receive notifications for upcoming bill payments so that I can prepare for them.
-    - {Acceptance Criteria List}
-  - **Story 6.2:** As a user, I want to receive progress updates on my savings goals so that I can stay motivated.
-    - {Acceptance Criteria List}
-  - **Story 6.3:** As a user, I want to receive confirmation notifications when I complete transactions so that I know my actions were successful.
-    - {Acceptance Criteria List}
+_{This section will be created later, from the sections prior to this being carved up into smaller documents}_
 
 ## Out of Scope Ideas Post MVP
 
-- [cite_start]Plaid integration for automatic bank transaction syncing. [cite: 1]
-- [cite_start]Budget creation and tracking against categories. [cite: 1]
-- [cite_start]Setting up recurring transactions. [cite: 1]
-- [cite_start]Advanced reporting and data visualization. [cite: 1]
-- [cite_start]Push notifications for bill payment reminders. [cite: 1]
-- **Credit Card Integration:** Automatic credit card transaction import
-- **Bill Payment Integration:** Direct bill payment capabilities
-- **Smart Categorization:** Automatic transaction categorization
-- **Dark Mode:** Complete dark theme support
-- **Photo Receipts:** Attach photos to transactions
-- **Voice Input:** Voice-to-text for quick transaction entry
-- **Family Sharing:** Shared expense tracking for families
-- **Export Features:** PDF/CSV export of financial reports
-
-## Change Log
-
-| Change        | Date       | Version | Description                                       | Author    |
-| :------------ | :--------- | :------ | :------------------------------------------------ | :-------- |
-| Initial Draft | 2025-07-14 | 1.0     | First draft of PRD based on Project Brief.        | John (PM) |
-| Updated       | 2025-01-XX | 1.1     | Expanded to include comprehensive Monex features. | John (PM) |
+- Sound effects for abilities and movement.
+- Interactable targets (e.g., "minions" or training dummies).
+- A functional NestJS backend to track user stats (e.g., total abilities used).
+- A more detailed 3D environment with props and varied terrain.
+- Additional meme-based features or character skins.

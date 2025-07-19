@@ -37,16 +37,20 @@ UNI-METHOD (Breakthrough Method of Agile AI-Driven Development) is an AI agent o
 ### Installation
 
 #### Option 1: Gemini Gem or GPT Setup
+
 In folder web-bundle, the text in agent-prompt.txt gets entered into the window of the main custom web agent instruction set. The other files in the build folder all need to be attached as files for the Gem or GPT.
 
 **For Gemini:**
+
 1. Create new Gem
 2. Upload bundle as instruction file (agent-config.txt, checklists.txt, templates.txt, personas.txt, tasks.txt, data.txt)
 3. Set system instructions for agent behavior (agent-prompt.txt)
 4. Initialize with `/help` command
 
 #### Option 2: IDE Setup (Cursor, GitHub Copilot, etc.)
+
 **For Cursor:**
+
 1. Enable Custom Agents Mode on your Cursor IDE
 2. Copy custom prompt (sm.ide.md, dev.ide.md, etc.) into Cursor's custom agent settings
 
@@ -60,8 +64,9 @@ In folder web-bundle, the text in agent-prompt.txt gets entered into the window 
 ## Agent System
 
 ### Core Development Team
+
 | Agent              | Role               | Primary Functions                       | When to Use                            |
-|--------------------|--------------------| --------------------------------------- | -------------------------------------- |
+| ------------------ | ------------------ | --------------------------------------- | -------------------------------------- |
 | `analyst`          | Business Analyst   | Market research, requirements gathering | Project planning, competitive analysis |
 | `pm`               | Product Manager    | PRD creation, feature prioritization    | Strategic planning, roadmaps           |
 | `architect`        | Solution Architect | System design, technical architecture   | Complex systems, scalability planning  |
@@ -69,7 +74,6 @@ In folder web-bundle, the text in agent-prompt.txt gets entered into the window 
 | `design-architect` | Designer           | UI/UX design, prototypes                | User experience, interface design      |
 | `po`               | Product Owner      | Backlog management, story validation    | Story refinement, acceptance criteria  |
 | `sm`               | Scrum Master       | Sprint planning, story creation         | Project management, workflow           |
-
 
 ### How Agents Work
 
@@ -244,7 +248,6 @@ This file allows you to define your preferred technologies, patterns, and standa
 #### Using with Web Bundles
 
 When creating custom web bundles or uploading to AI platforms, include your `technical-preferences.md` content to ensure agents have your preferences from the start of any conversation.
-
 
 ## Development Workflow
 

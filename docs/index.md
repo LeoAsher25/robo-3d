@@ -1,6 +1,6 @@
-# CashCanvas Documentation Index
+# Yasuo Three.js Meme Simulator Documentation Index
 
-> This document serves as the central catalog for all CashCanvas project documentation, providing easy navigation to specific topics and requirements.
+> This document serves as the central catalog for all Yasuo Three.js Meme Simulator project documentation, providing easy navigation to specific topics and requirements.
 
 ## 📋 Project Overview
 
@@ -10,94 +10,48 @@
 
 ## 🎯 Requirements & Features
 
-### Core Features
+### Epic Documents
 
-- **[Onboarding Experience](features/onboarding.md)** - Splash screen and introduction flow
-- **[User Authentication](features/authentication.md)** - Login, signup, and password management
-- **[Dashboard & Analytics](features/dashboard.md)** - Financial overview and insights
-- **[Transaction Management](features/transactions.md)** - Income/expense tracking and categorization
-- **[Savings & Goals](features/savings-goals.md)** - Goal setting and progress tracking
-- **[Payment Reminders](features/reminders.md)** - Bill reminder system
-- **[Notifications](features/notifications.md)** - Notification center and alerts
+- **[Epic 1: Foundational Scene & Character Rendering](epic-1.md)** - Basic 3D environment and character setup
+- **[Epic 2: Core Ability Implementation](epic-2.md)** - Q, W, E ability implementations
+- **[Epic 3: Special Moves & Ultimate](epic-3.md)** - F, D, R ability implementations
 
-### User Stories & Epics
+### Individual Story Documents
 
-- **[Epic 1: Onboarding & Authentication](epics/epic-1-onboarding-auth.md)** - User onboarding and account management
-- **[Epic 2: Dashboard & Analytics](epics/epic-2-dashboard-analytics.md)** - Financial overview and insights
-- **[Epic 3: Transaction Management](epics/epic-3-transactions.md)** - Income/expense tracking
-- **[Epic 4: Savings & Goals](epics/epic-4-savings-goals.md)** - Goal setting and tracking
-- **[Epic 5: Payment Reminders](epics/epic-5-reminders.md)** - Bill reminder system
-- **[Epic 6: Notifications](epics/epic-6-notifications.md)** - Notification management
-
-### Sharded Story Documents
-
-- **[Epic Sharding Index](epics/epic-sharding-index.md)** - Complete index of all sharded story documents
-- **[Epic 1 Stories](epics/epic-1-onboarding-auth/)** - 5 individual story documents for onboarding & authentication
-- **[Epic 2 Stories](epics/epic-2-dashboard-analytics/)** - 5 individual story documents for dashboard & analytics
-- **[Epic 3 Stories](epics/epic-3-transactions/)** - 6 individual story documents for transaction management _(In Progress)_
-- **[Epic 4 Stories](epics/epic-4-savings-goals/)** - 6 individual story documents for savings & goals _(To be created)_
-- **[Epic 5 Stories](epics/epic-5-reminders/)** - 5 individual story documents for payment reminders _(To be created)_
-- **[Epic 6 Stories](epics/epic-6-notifications/)** - 5 individual story documents for notifications _(To be created)_
-
-## 🎨 Design & UX
-
-### UI/UX Specifications
-
-- **[Design System](design/design-system.md)** - Colors, typography, and component guidelines
-- **[User Flows](design/user-flows.md)** - Detailed user journey diagrams
-- **[Screen Specifications](design/screen-specs.md)** - Detailed screen layouts and interactions
-- **[Component Library](design/component-library.md)** - Reusable UI components
-- **[Accessibility Guidelines](design/accessibility.md)** - WCAG compliance and accessibility features
-
-### Visual Design
-
-- **[Brand Guidelines](design/brand-guidelines.md)** - Brand identity and visual standards
-- **[Iconography](design/iconography.md)** - Icon system and usage guidelines
-- **[Animation Guidelines](design/animations.md)** - Motion design and micro-interactions
+- **[Epic Sharding Index](epic-sharding-index.md)** - Complete index of all sharded story documents
+- **[Story 1.1: Basic 3D Environment](story-1-1.md)** - Render basic 3D scene with ground and lighting
+- **[Story 1.2: Character Model Rendering](story-1-2.md)** - Load and display Yasuo 3D model
+- **[Story 2.1: Q Ability - Sword Thrust](story-2-1.md)** - Implement Q key sword thrust animation
+- **[Story 2.2: W Ability - Wind Wall](story-2-2.md)** - Implement W key wind wall ability
+- **[Story 2.3: E Ability - Dash](story-2-3.md)** - Implement E key dash movement
+- **[Story 3.1: F Ability - Flash Teleport](story-3-1.md)** - Implement F key flash teleport ability
+- **[Story 3.2: D Ability - Humorous Action](story-3-2.md)** - Implement D key humorous animation
+- **[Story 3.3: R Ability - Ultimate](story-3-3.md)** - Implement R key ultimate ability with meme text
 
 ## 🏗️ Technical Architecture
 
-### Backend Architecture
+### Main Architecture Documents
 
-- **[API Reference](architecture/api-reference.md)** - API endpoints and specifications
-- **[Data Models](architecture/data-models.md)** - Database schema and entity definitions
-- **[Environment Variables](architecture/environment-vars.md)** - Configuration and deployment settings
-- **[Project Structure](architecture/project-structure.md)** - Repository and code organization
+- **[API Reference](api-reference.md)** - API endpoints and specifications
+- **[Data Models](data-models.md)** - Database schema and entity definitions
+- **[Project Structure](project-structure.md)** - Repository and code organization
+- **[Technology Stack](tech-stack.md)** - Frameworks, libraries, and tools
+- **[Operational Guidelines](operational-guidelines.md)** - Coding standards, testing, error handling, and security
+- **[Component View](component-view.md)** - Component hierarchy and patterns
+- **[Sequence Diagrams](sequence-diagrams.md)** - Workflow and interaction diagrams
+- **[Infrastructure and Deployment](infra-deployment.md)** - System architecture and deployment
+- **[Key References](key-references.md)** - Change log and reference materials
 
-### Sharded Architecture Documents
+### Frontend Architecture Documents
 
-- **[Architecture Sharding Index](architecture/architecture-sharding-index.md)** - Complete index of all sharded architecture documents
-- **[API Documents](architecture/api/)** - Granular API documentation by feature
-- **[Data Model Documents](architecture/data-models/)** - Granular database schema documentation by entity
-
-### Frontend Architecture
-
-- **[Frontend Project Structure](architecture/frontend-structure.md)** - React Native app organization
-- **[State Management](architecture/state-management.md)** - Data flow and state handling
-- **[API Interaction](architecture/api-interaction.md)** - Frontend-backend communication
-- **[Routing Strategy](architecture/routing.md)** - Navigation and screen flow
-- **[Component Architecture](architecture/component-architecture.md)** - Component hierarchy and patterns
-
-### Development Guidelines
-
-- **[Coding Standards](guidelines/coding-standards.md)** - Code style and best practices
-- **[Testing Strategy](guidelines/testing-strategy.md)** - Unit, integration, and E2E testing
-- **[Error Handling](guidelines/error-handling.md)** - Error management and user feedback
-- **[Security Guidelines](guidelines/security.md)** - Security best practices and requirements
-
-## 🚀 Development & Deployment
-
-### Infrastructure
-
-- **[Infrastructure Overview](deployment/infrastructure.md)** - System architecture and deployment
-- **[Technology Stack](deployment/tech-stack.md)** - Frameworks, libraries, and tools
-- **[Deployment Process](deployment/deployment.md)** - CI/CD and release management
-
-### Quality Assurance
-
-- **[Testing Guidelines](qa/testing-guidelines.md)** - Testing procedures and standards
-- **[Performance Requirements](qa/performance.md)** - Performance targets and monitoring
-- **[Accessibility Testing](qa/accessibility-testing.md)** - Accessibility validation procedures
+- **[Front-End Project Structure](front-end-project-structure.md)** - React/Next.js app organization
+- **[Front-End Component Guide](front-end-component-guide.md)** - Component breakdown and implementation details
+- **[Front-End State Management](front-end-state-management.md)** - Data flow and state handling
+- **[Front-End API Interaction](front-end-api-interaction.md)** - Frontend-backend communication
+- **[Front-End Routing Strategy](front-end-routing-strategy.md)** - Navigation and screen flow
+- **[Front-End Testing Strategy](front-end-testing-strategy.md)** - Performance considerations and testing
+- **[Front-End Style Guide](front-end-style-guide.md)** - Branding and visual design guidelines
+- **[Front-End Coding Standards](front-end-coding-standards.md)** - Frontend development patterns and standards
 
 ## 📚 Reference Materials
 
@@ -118,9 +72,7 @@
 
 ### Version History
 
-- **[Change Log](changes/changelog.md)** - Document version history and updates
-- **[Migration Guide](changes/migration-guide.md)** - Breaking changes and migration steps
-- **[Sharding Report](changes/sharding-report.md)** - Document sharding implementation report
+- **[Change Log](key-references.md)** - Document version history and updates
 
 ---
 
@@ -129,34 +81,34 @@
 ### For Product Owners
 
 - Start with **[Project Brief](project-brief.md)** and **[PRD](prd.md)**
-- Review **[Epics](epics/)** for detailed user stories
+- Review **[Epics](epic-1.md, epic-2.md, epic-3.md)** for detailed user stories
 - Check **[PO Master Checklist](checklists/po-master-checklist.md)**
 
 ### For Developers
 
-- Begin with **[Architecture](architecture/)** documents
-- Review **[Coding Standards](guidelines/coding-standards.md)**
-- Check **[Testing Guidelines](qa/testing-guidelines.md)**
+- Begin with **[Architecture](architecture.md)** documents
+- Review **[Technology Stack](tech-stack.md)** and **[Operational Guidelines](operational-guidelines.md)**
+- Check **[Front-End Architecture](front-end-architecture.md)** for frontend specifics
 
 ### For Designers
 
 - Start with **[Front-End Specification](front-end-spec.md)**
-- Review **[Design System](design/design-system.md)**
-- Check **[User Flows](design/user-flows.md)**
+- Review **[Front-End Style Guide](front-end-style-guide.md)**
+- Check **[Front-End Component Guide](front-end-component-guide.md)**
 
 ### For QA Engineers
 
-- Review **[Testing Guidelines](qa/testing-guidelines.md)**
-- Check **[Performance Requirements](qa/performance.md)**
-- Review **[Accessibility Testing](qa/accessibility-testing.md)**
+- Review **[Operational Guidelines](operational-guidelines.md)** for testing strategy
+- Check **[Front-End Testing Strategy](front-end-testing-strategy.md)**
+- Review **[Sequence Diagrams](sequence-diagrams.md)** for workflow understanding
 
 ### For DevOps Engineers
 
-- Review **[Deployment Process](deployment/deployment.md)**
-- Check **[Infrastructure Overview](deployment/infrastructure.md)**
-- Review **[API Reference](architecture/api-reference.md)**
+- Review **[Infrastructure and Deployment](infra-deployment.md)**
+- Check **[Technology Stack](tech-stack.md)**
+- Review **[API Reference](api-reference.md)**
 
 ---
 
 _Last Updated: January 2025_
-_Version: 2.0_
+_Version: 1.0_
