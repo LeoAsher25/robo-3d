@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useCharacterStore } from "../../stores/useCharacterStore";
 
@@ -13,7 +14,7 @@ interface CharacterProps {
 }
 
 export function Character({
-  modelPath = "/models/yasuo-wheelchair.glb",
+  modelPath = "/models/Yasuo_Base.glb",
   scale = 1,
   position = [0, 0, 0],
   rotation = [0, 0, 0],
@@ -22,6 +23,11 @@ export function Character({
   const rightArmRef = useRef<THREE.Mesh>(null);
   const leftArmRef = useRef<THREE.Mesh>(null);
   const bodyRef = useRef<THREE.Mesh>(null);
+
+  // Load the 3D model
+  const { scene: modelScene } = useGLTF(modelPath);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [modelError, setModelError] = useState(false);
 
   // Get character state from store
   const {
@@ -45,6 +51,33 @@ export function Character({
 
   // Animation timing
   const [animationStartTime, setAnimationStartTime] = useState<number>(0);
+
+  // Handle model loading
+  useEffect(() => {
+    if (modelScene) {
+      setModelLoaded(true);
+      setModelError(false);
+      console.log("Yasuo model loaded successfully");
+    }
+  }, [modelScene]);
+
+  // Handle model loading errors
+  useEffect(() => {
+    const handleModelError = () => {
+      setModelError(true);
+      setModelLoaded(false);
+      console.log("Failed to load Yasuo model, using placeholder");
+    };
+
+    // Add error handling for model loading
+    if (modelScene) {
+      modelScene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.userData = { ...child.userData, onError: handleModelError };
+        }
+      });
+    }
+  }, [modelScene]);
 
   // Initialize animation when Q_ATTACK, D_ABILITY, or R_ABILITY starts
   useEffect(() => {
@@ -287,166 +320,131 @@ export function Character({
           ultimateAnimation.groupRotation[2],
       ]}
       scale={scale}>
-      {/* Placeholder Yasuo in wheelchair character made of basic shapes */}
-      <group position={[0, 0.5, 0]}>
-        {/* Head */}
-        <mesh position={[0, 1.5, 0]}>
-          <sphereGeometry args={[0.3, 16, 16]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
+      {/* Render actual Yasuo model if loaded successfully */}
+      {modelLoaded && !modelError && (
+        <primitive
+          object={modelScene}
+          position={[0, 0, 0]}
+          scale={[scale, scale, scale]}
+        />
+      )}
 
-        {/* Body - moves forward during thrust */}
-        <mesh
-          ref={bodyRef}
-          position={[0, 0.5, animation.bodyForward]}
-          scale={[
-            ultimateAnimation.bodyScale,
-            ultimateAnimation.bodyScale,
-            ultimateAnimation.bodyScale,
-          ]}>
-          <boxGeometry args={[0.8, 1, 0.3]} />
-          <meshStandardMaterial
-            color={
-              action === "Q_ATTACK"
-                ? "#4ECDC4"
-                : action === "R_ABILITY"
-                ? ultimateAnimation.bodyColor
-                : humorousAnimation.bodyColor
-            }
-          />
-        </mesh>
+      {/* Fallback to placeholder character if model fails to load */}
+      {(!modelLoaded || modelError) && (
+        <group position={[0, 0.5, 0]}>
+          {/* Head */}
+          <mesh position={[0, 1.5, 0]}>
+            <sphereGeometry args={[0.3, 16, 16]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
 
-        {/* Right Arm - animated for sword thrust */}
-        <mesh
-          ref={rightArmRef}
-          position={[0.6 + animation.armExtension, 0.8, 0]}
-          rotation={animation.rightArmRotation}
-          scale={[
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-          ]}>
-          <boxGeometry args={[0.2, 0.6, 0.2]} />
-          <meshStandardMaterial
-            color={
-              action === "Q_ATTACK"
-                ? "#FF6B6B"
-                : action === "R_ABILITY"
-                ? ultimateAnimation.armColor
-                : humorousAnimation.armColor
-            }
-          />
-        </mesh>
+          {/* Body - moves forward during thrust */}
+          <mesh
+            ref={bodyRef}
+            position={[0, 0.5, animation.bodyForward]}
+            scale={[
+              ultimateAnimation.bodyScale,
+              ultimateAnimation.bodyScale,
+              ultimateAnimation.bodyScale,
+            ]}>
+            <boxGeometry args={[0.8, 1, 0.3]} />
+            <meshStandardMaterial
+              color={
+                action === "Q_ATTACK"
+                  ? "#4ECDC4"
+                  : action === "R_ABILITY"
+                  ? ultimateAnimation.bodyColor
+                  : humorousAnimation.bodyColor
+              }
+            />
+          </mesh>
 
-        {/* Left Arm - supporting arm during thrust */}
-        <mesh
-          ref={leftArmRef}
-          position={[-0.6, 0.8, 0]}
-          rotation={animation.leftArmRotation}
-          scale={[
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-          ]}>
-          <boxGeometry args={[0.2, 0.6, 0.2]} />
-          <meshStandardMaterial
-            color={
-              action === "R_ABILITY"
-                ? ultimateAnimation.armColor
-                : humorousAnimation.armColor
-            }
-          />
-        </mesh>
+          {/* Right Arm - animated for sword thrust */}
+          <mesh
+            ref={rightArmRef}
+            position={[0.6 + animation.armExtension, 0.8, 0]}
+            rotation={animation.rightArmRotation}
+            scale={[
+              ultimateAnimation.armScale,
+              ultimateAnimation.armScale,
+              ultimateAnimation.armScale,
+            ]}>
+            <boxGeometry args={[0.2, 0.6, 0.2]} />
+            <meshStandardMaterial
+              color={
+                action === "Q_ATTACK"
+                  ? "#FF6B6B"
+                  : action === "R_ABILITY"
+                  ? ultimateAnimation.armColor
+                  : humorousAnimation.armColor
+              }
+            />
+          </mesh>
 
-        {/* Wheelchair seat */}
-        <mesh position={[0, -0.2, 0]}>
-          <boxGeometry args={[1.2, 0.1, 0.8]} />
-          <meshStandardMaterial color="#696969" />
-        </mesh>
+          {/* Left Arm - supporting arm during thrust */}
+          <mesh
+            ref={leftArmRef}
+            position={[-0.6, 0.8, 0]}
+            rotation={animation.leftArmRotation}
+            scale={[
+              ultimateAnimation.armScale,
+              ultimateAnimation.armScale,
+              ultimateAnimation.armScale,
+            ]}>
+            <boxGeometry args={[0.2, 0.6, 0.2]} />
+            <meshStandardMaterial
+              color={
+                action === "R_ABILITY"
+                  ? ultimateAnimation.armColor
+                  : humorousAnimation.armColor
+              }
+            />
+          </mesh>
 
-        {/* Wheelchair back */}
-        <mesh position={[0, 0.3, -0.4]}>
-          <boxGeometry args={[1.2, 0.8, 0.1]} />
-          <meshStandardMaterial color="#696969" />
-        </mesh>
+          {/* Wheelchair seat */}
+          <mesh position={[0, -0.2, 0]}>
+            <boxGeometry args={[1.2, 0.1, 0.8]} />
+            <meshStandardMaterial color="#696969" />
+          </mesh>
 
-        {/* Wheels */}
-        <mesh position={[0.7, -0.5, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-          <meshStandardMaterial color="#2F4F4F" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-          <meshStandardMaterial color="#2F4F4F" />
-        </mesh>
+          {/* Wheelchair back */}
+          <mesh position={[0, 0.3, -0.4]}>
+            <boxGeometry args={[1.2, 0.8, 0.1]} />
+            <meshStandardMaterial color="#696969" />
+          </mesh>
 
-        {/* Wheel spokes */}
-        <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-      </group>
+          {/* Wheels */}
+          <mesh position={[0.7, -0.5, 0]}>
+            <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
+            <meshStandardMaterial color="#2F4F4F" />
+          </mesh>
+          <mesh position={[-0.7, -0.5, 0]}>
+            <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
+            <meshStandardMaterial color="#2F4F4F" />
+          </mesh>
+
+          {/* Wheel spokes */}
+          <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.6, 0.02, 0.02]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+          <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
+            <boxGeometry args={[0.6, 0.02, 0.02]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+          <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.6, 0.02, 0.02]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+          <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
+            <boxGeometry args={[0.6, 0.02, 0.02]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }
 
-// TODO: When the actual GLB model is available, uncomment this code:
-/*
-import { useGLTF } from "@react-three/drei";
-
-export function Character({
-  modelPath = "/models/yasuo-wheelchair.glb",
-  scale = 1,
-  position = [0, 0, 0],
-  rotation = [0, 0, 0],
-}: CharacterProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const [hasError, setHasError] = useState(false);
-
-  // Load the 3D model using useGLTF with error handling
-  const { scene, nodes, materials } = useGLTF(modelPath);
-
-  // Error handling for model loading
-  useEffect(() => {
-    if (!scene) {
-      setHasError(true);
-      console.error(`Failed to load model: ${modelPath}`);
-    } else {
-      setHasError(false);
-    }
-  }, [scene, modelPath]);
-
-  // If there's an error, render a placeholder cube
-  if (hasError) {
-    return (
-      <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
-        <mesh>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="#ff0000" />
-        </mesh>
-      </group>
-    );
-  }
-
-  return (
-    <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
-      <primitive object={scene} />
-    </group>
-  );
-}
-
-// Preload the model to avoid loading delays
-useGLTF.preload("/models/yasuo-wheelchair.glb");
-*/
+// Preload the Yasuo model to avoid loading delays
+useGLTF.preload("/models/Yasuo_Base.glb");

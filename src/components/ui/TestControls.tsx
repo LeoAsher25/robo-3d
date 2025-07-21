@@ -56,9 +56,9 @@ export function TestControls() {
   };
 
   return (
-    <div className="fixed top-4 left-4 z-50 bg-black bg-opacity-50 text-white p-4 rounded">
+    <div className="text-white p-[16px] rounded">
       <h3 className="text-lg font-bold mb-2">Test Controls</h3>
-      <div className="space-y-2">
+      <div className="flex gap-[8px] flex-wrap">
         <button
           onClick={triggerQAttack}
           disabled={isAnimating}
@@ -101,7 +101,7 @@ export function TestControls() {
           Trigger Ultimate
         </button>
       </div>
-      <div className="mt-2 text-sm">
+      <div className="mt-[16px] text-sm">
         <div>Action: {action}</div>
         <div>Animating: {isAnimating ? "Yes" : "No"}</div>
         <div>Progress: {(animationProgress * 100).toFixed(1)}%</div>
@@ -110,6 +110,23 @@ export function TestControls() {
         <div>Flash Active: {flashActive ? "Yes" : "No"}</div>
         <div>Humorous Active: {humorousActive ? "Yes" : "No"}</div>
         <div>Ultimate Active: {ultimateActive ? "Yes" : "No"}</div>
+      </div>
+      <div className="mt-[24px] text-sm bg-gray-900/80 p-3 rounded">
+        <div className="font-bold mb-1 text-blue-300">3D Camera Controls</div>
+        <ul className="list-disc ml-5 space-y-1">
+          <li>
+            <b>Zoom:</b> Lăn chuột giữa hoặc dùng phím <b>+/-</b>
+          </li>
+          <li>
+            <b>Xoay:</b> Giữ chuột phải và kéo
+          </li>
+          <li>
+            <b>Kéo (Pan):</b> Giữ chuột trái và kéo
+          </li>
+          <li>
+            <b>Di chuyển camera:</b> Phím <b>Up/Down/Left/Right</b>
+          </li>
+        </ul>
       </div>
     </div>
   );

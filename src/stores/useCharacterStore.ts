@@ -304,13 +304,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   activateUltimate: () => {
     console.log("Activating ultimate ability");
     const currentTime = Date.now();
-    const memePhrases = [
-      "GGEZ",
-      "HASAGI!",
-      "YASUO MAIN BTW",
-      "EZ GAME",
-      "GET GOOD",
-    ];
+    const memePhrases = ["GGEZ", "HASAGI!", "EZ GAME", "GG"];
     const randomPhrase =
       memePhrases[Math.floor(Math.random() * memePhrases.length)];
 
