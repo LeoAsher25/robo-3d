@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useCharacterStore } from "../../stores/useCharacterStore";
@@ -25,9 +25,13 @@ export function Character({
   const bodyRef = useRef<THREE.Mesh>(null);
 
   // Load the 3D model
-  const { scene: modelScene } = useGLTF(modelPath);
+  const { scene: modelScene, animations } = useGLTF(modelPath);
   const [modelLoaded, setModelLoaded] = useState(false);
   const [modelError, setModelError] = useState(false);
+
+  // Animation mixer for glTF animations
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+  const actionRef = useRef<THREE.AnimationAction | null>(null);
 
   // Get character state from store
   const {
@@ -39,8 +43,6 @@ export function Character({
     dashActive,
     dashStartPosition,
     dashTargetPosition,
-    dashStartTime,
-    dashDuration,
     humorousActive,
     humorousStartTime,
     humorousDuration,
@@ -79,38 +81,74 @@ export function Character({
     }
   }, [modelScene]);
 
-  // Initialize animation when Q_ATTACK, D_ABILITY, or R_ABILITY starts
+  // Play glTF animation when action changes
   useEffect(() => {
-    if (action === "Q_ATTACK") {
-      setAnimationStartTime(Date.now());
-      console.log("Q_ATTACK animation started");
-    } else if (action === "D_ABILITY") {
-      setAnimationStartTime(Date.now());
-      console.log("D_ABILITY animation started");
-    } else if (action === "R_ABILITY") {
-      setAnimationStartTime(Date.now());
-      console.log("R_ABILITY animation started");
+    if (!modelScene || !animations || animations.length === 0) return;
+    if (!mixerRef.current) {
+      mixerRef.current = new THREE.AnimationMixer(modelScene);
     }
-  }, [action]);
+    if (actionRef.current) {
+      actionRef.current.stop();
+      actionRef.current = null;
+    }
+    let animIndex = 0;
+    // if (action === "Q_ATTACK") animIndex = 0;
+    // else if (action === "D_ABILITY") animIndex = 1;
+    // else if (action === "R_ABILITY") animIndex = 43;
 
-  // Animation frame update
-  useFrame(() => {
-    if (
-      (action === "Q_ATTACK" ||
-        action === "D_ABILITY" ||
-        action === "R_ABILITY") &&
-      isAnimating
-    ) {
-      const currentTime = Date.now();
-      const elapsed = currentTime - animationStartTime;
-      const progress = Math.min(elapsed / animationDuration, 1);
+    const Q_animation_indexes = [33, 34, 35];
+    switch (action) {
+      case "Q_ATTACK":
+        animIndex =
+          Q_animation_indexes[
+            Math.floor(Math.random() * Q_animation_indexes.length)
+          ];
+        break;
+      case "W_ABILITY":
+        animIndex = 37;
+        break;
+      case "E_ABILITY":
+        animIndex = 42;
+        break;
+      case "R_ABILITY":
+        animIndex = 43;
+        break;
+      case "F_ABILITY":
+        animIndex = 3;
+        break;
+      case "D_ABILITY":
+        animIndex = 1;
+        break;
+      default:
+        animIndex = 0;
+        break;
+    }
 
-      setAnimationProgress(progress);
+    if (animIndex >= 1 && animIndex < animations.length && mixerRef.current) {
+      const clip = animations[animIndex - 1];
+      const animAction = mixerRef.current.clipAction(clip);
+      animAction.reset().setLoop(THREE.LoopOnce, 0).clampWhenFinished = true;
+      animAction.play();
+      actionRef.current = animAction;
 
-      // Debug logging
-      if (progress % 0.1 < 0.01) {
-        console.log(`Animation progress: ${(progress * 100).toFixed(1)}%`);
-      }
+      // Optional: lắng nghe khi animation kết thúc
+      const onFinished = () => {
+        // Ví dụ: reset action về "" hoặc trạng thái idle
+        // setAction(""); // nếu bạn có hàm setAction
+      };
+      animAction.getMixer().addEventListener("finished", onFinished);
+
+      // Cleanup listener khi unmount hoặc đổi action
+      return () => {
+        animAction.getMixer().removeEventListener("finished", onFinished);
+      };
+    }
+  }, [action, modelScene, animations]);
+
+  // Update mixer mỗi frame
+  useFrame((_, delta) => {
+    if (mixerRef.current) {
+      mixerRef.current.update(delta);
     }
   });
 
@@ -276,34 +314,92 @@ export function Character({
 
   const ultimateAnimation = getUltimateAnimation();
 
-  // Calculate dash movement position
-  const getDashPosition = () => {
-    if (!dashActive) {
-      return position;
+  const { camera, gl } = useThree();
+
+  // State for dash movement
+  const [currentPosition, setCurrentPosition] =
+    useState<[number, number, number]>(position);
+  const [dashActiveLocal, setDashActiveLocal] = useState(false);
+  const [dashStart, setDashStart] =
+    useState<[number, number, number]>(position);
+  const [dashTarget, setDashTarget] =
+    useState<[number, number, number]>(position);
+  const [dashStartTime, setDashStartTime] = useState(0);
+  const dashDuration = 500; // ms
+
+  // Khi dashActive từ store bật lên, bắt đầu dash nội bộ
+  useEffect(() => {
+    if (dashActive && dashTargetPosition && dashStartPosition) {
+      setDashStart(currentPosition);
+      setDashTarget(dashTargetPosition);
+      setDashStartTime(Date.now());
+      setDashActiveLocal(true);
     }
+  }, [dashActive, dashTargetPosition, dashStartPosition, currentPosition]);
 
-    const elapsedTime = Date.now() - dashStartTime;
-    const progress = Math.min(elapsedTime / dashDuration, 1);
+  // Dash logic: interpolate vị trí
+  useFrame(() => {
+    if (dashActiveLocal) {
+      const elapsed = Date.now() - dashStartTime;
+      const progress = Math.min(elapsed / dashDuration, 1);
+      // Easing
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+      const eased = easeOut(progress);
+      const newPos: [number, number, number] = [
+        dashStart[0] + (dashTarget[0] - dashStart[0]) * eased,
+        dashStart[1] + (dashTarget[1] - dashStart[1]) * eased,
+        dashStart[2] + (dashTarget[2] - dashStart[2]) * eased,
+      ];
+      setCurrentPosition(newPos);
+      if (progress >= 1) {
+        setDashActiveLocal(false);
+        setCurrentPosition(dashTarget); // Giữ vị trí mới
+      }
+    }
+  });
 
-    // Easing function for smooth dash movement
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    const easedProgress = easeOut(progress);
+  // Click chuột phải để di chuyển Yasuo
+  useEffect(() => {
+    if (!gl || !camera) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (event.button === 2) {
+        // Right click
+        const rect = gl.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          -((event.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const intersection = new THREE.Vector3();
+        raycaster.ray.intersectPlane(plane, intersection);
+        setDashStart(currentPosition);
+        setDashTarget([intersection.x, intersection.y, intersection.z]);
+        setDashStartTime(Date.now());
+        setDashActiveLocal(true);
+        // Play animation 27 khi click chuột phải
+        if (mixerRef.current && animations && animations[27]) {
+          if (actionRef.current) {
+            actionRef.current.stop();
+            actionRef.current = null;
+          }
+          const clip = animations[27];
+          const animAction = mixerRef.current.clipAction(clip);
+          animAction.reset().setLoop(THREE.LoopOnce, 0).clampWhenFinished =
+            true;
+          animAction.play();
+          actionRef.current = animAction;
+        }
+      }
+    };
+    gl.domElement.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      gl.domElement.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [camera, gl, currentPosition, animations]);
 
-    // Interpolate between start and target positions
-    const currentPosition: [number, number, number] = [
-      dashStartPosition[0] +
-        (dashTargetPosition[0] - dashStartPosition[0]) * easedProgress,
-      dashStartPosition[1] +
-        (dashTargetPosition[1] - dashStartPosition[1]) * easedProgress,
-      dashStartPosition[2] +
-        (dashTargetPosition[2] - dashStartPosition[2]) * easedProgress,
-    ];
-
-    return currentPosition;
-  };
-
-  const currentPosition = getDashPosition();
-
+  // Thay currentPosition vào vị trí nhân vật
   return (
     <group
       ref={groupRef}
