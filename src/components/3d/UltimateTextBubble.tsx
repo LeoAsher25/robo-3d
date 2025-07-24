@@ -88,7 +88,6 @@ export function UltimateTextBubble() {
         color="#000000"
         anchorX="center"
         anchorY="middle"
-        font="/fonts/arial.ttf"
         fillOpacity={opacity}>
         {textBubbleText}
       </Text>

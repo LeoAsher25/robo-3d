@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useCharacterStore } from "../../stores/useCharacterStore";
 
@@ -13,7 +14,7 @@ interface CharacterProps {
 }
 
 export function Character({
-  modelPath = "/models/yasuo-wheelchair.glb",
+  modelPath = "/models/Yasuo_Base.glb",
   scale = 1,
   position = [0, 0, 0],
   rotation = [0, 0, 0],
@@ -22,6 +23,15 @@ export function Character({
   const rightArmRef = useRef<THREE.Mesh>(null);
   const leftArmRef = useRef<THREE.Mesh>(null);
   const bodyRef = useRef<THREE.Mesh>(null);
+
+  // Load the 3D model
+  const { scene: modelScene, animations } = useGLTF(modelPath);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [modelError, setModelError] = useState(false);
+
+  // Animation mixer for glTF animations
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+  const actionRef = useRef<THREE.AnimationAction | null>(null);
 
   // Get character state from store
   const {
@@ -33,51 +43,114 @@ export function Character({
     dashActive,
     dashStartPosition,
     dashTargetPosition,
-    dashStartTime,
-    dashDuration,
     humorousActive,
     humorousStartTime,
     humorousDuration,
     ultimateActive,
     ultimateStartTime,
     ultimateDuration,
+    resetAnimation,
   } = useCharacterStore();
 
   // Animation timing
   const [animationStartTime, setAnimationStartTime] = useState<number>(0);
 
-  // Initialize animation when Q_ATTACK, D_ABILITY, or R_ABILITY starts
+  // Handle model loading
   useEffect(() => {
-    if (action === "Q_ATTACK") {
-      setAnimationStartTime(Date.now());
-      console.log("Q_ATTACK animation started");
-    } else if (action === "D_ABILITY") {
-      setAnimationStartTime(Date.now());
-      console.log("D_ABILITY animation started");
-    } else if (action === "R_ABILITY") {
-      setAnimationStartTime(Date.now());
-      console.log("R_ABILITY animation started");
+    if (modelScene) {
+      setModelLoaded(true);
+      setModelError(false);
+      console.log("Yasuo model loaded successfully");
     }
-  }, [action]);
+  }, [modelScene]);
 
-  // Animation frame update
-  useFrame(() => {
-    if (
-      (action === "Q_ATTACK" ||
-        action === "D_ABILITY" ||
-        action === "R_ABILITY") &&
-      isAnimating
-    ) {
-      const currentTime = Date.now();
-      const elapsed = currentTime - animationStartTime;
-      const progress = Math.min(elapsed / animationDuration, 1);
+  // Handle model loading errors
+  useEffect(() => {
+    const handleModelError = () => {
+      setModelError(true);
+      setModelLoaded(false);
+      console.log("Failed to load Yasuo model, using placeholder");
+    };
 
-      setAnimationProgress(progress);
+    // Add error handling for model loading
+    if (modelScene) {
+      modelScene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.userData = { ...child.userData, onError: handleModelError };
+        }
+      });
+    }
+  }, [modelScene]);
 
-      // Debug logging
-      if (progress % 0.1 < 0.01) {
-        console.log(`Animation progress: ${(progress * 100).toFixed(1)}%`);
-      }
+  // Play glTF animation when action changes
+  useEffect(() => {
+    if (!modelScene || !animations || animations.length === 0) return;
+    if (!mixerRef.current) {
+      mixerRef.current = new THREE.AnimationMixer(modelScene);
+    }
+    if (actionRef.current) {
+      actionRef.current.stop();
+      actionRef.current = null;
+    }
+    let animIndex = 0;
+    // if (action === "Q_ATTACK") animIndex = 0;
+    // else if (action === "D_ABILITY") animIndex = 1;
+    // else if (action === "R_ABILITY") animIndex = 43;
+
+    const Q_animation_indexes = [33, 34, 35];
+    switch (action) {
+      case "Q_ATTACK":
+        animIndex =
+          Q_animation_indexes[
+            Math.floor(Math.random() * Q_animation_indexes.length)
+          ];
+        break;
+      case "W_ABILITY":
+        animIndex = 37;
+        break;
+      case "E_ABILITY":
+        animIndex = 42;
+        break;
+      case "R_ABILITY":
+        animIndex = 43;
+        break;
+      case "F_ABILITY":
+        animIndex = 3;
+        break;
+      case "D_ABILITY":
+        animIndex = 1;
+        break;
+      default:
+        animIndex = 0;
+        break;
+    }
+
+    if (animIndex >= 1 && animIndex < animations.length && mixerRef.current) {
+      const clip = animations[animIndex - 1];
+      const animAction = mixerRef.current.clipAction(clip);
+      animAction.reset().setLoop(THREE.LoopOnce, 0).clampWhenFinished = true;
+      animAction.play();
+      actionRef.current = animAction;
+
+      // Optional: lắng nghe khi animation kết thúc
+      const onFinished = () => {
+        // Ví dụ: reset action về "" hoặc trạng thái idle
+        // setAction(""); // nếu bạn có hàm setAction
+        resetAnimation();
+      };
+      animAction.getMixer().addEventListener("finished", onFinished);
+
+      // Cleanup listener khi unmount hoặc đổi action
+      return () => {
+        animAction.getMixer().removeEventListener("finished", onFinished);
+      };
+    }
+  }, [action, modelScene, animations]);
+
+  // Update mixer mỗi frame
+  useFrame((_, delta) => {
+    if (mixerRef.current) {
+      mixerRef.current.update(delta);
     }
   });
 
@@ -243,210 +316,117 @@ export function Character({
 
   const ultimateAnimation = getUltimateAnimation();
 
-  // Calculate dash movement position
-  const getDashPosition = () => {
-    if (!dashActive) {
-      return position;
+  const { camera, gl } = useThree();
+
+  // State for dash movement
+  const [currentPosition, setCurrentPosition] =
+    useState<[number, number, number]>(position);
+  const [dashActiveLocal, setDashActiveLocal] = useState(false);
+  const [dashStart, setDashStart] =
+    useState<[number, number, number]>(position);
+  const [dashTarget, setDashTarget] =
+    useState<[number, number, number]>(position);
+  const [dashStartTime, setDashStartTime] = useState(0);
+  const dashDuration = 500; // ms
+
+  // Thêm state cho hướng quay nhân vật
+  const [characterRotationY, setCharacterRotationY] = useState(0);
+
+  // Khi dashActive từ store bật lên, bắt đầu dash nội bộ
+  useEffect(() => {
+    if (dashActive && dashTargetPosition && dashStartPosition) {
+      setDashStart(currentPosition);
+      setDashTarget(dashTargetPosition);
+      setDashStartTime(Date.now());
+      setDashActiveLocal(true);
     }
+  }, [dashActive, dashTargetPosition, dashStartPosition, currentPosition]);
 
-    const elapsedTime = Date.now() - dashStartTime;
-    const progress = Math.min(elapsedTime / dashDuration, 1);
+  // Dash logic: interpolate vị trí
+  useFrame(() => {
+    if (dashActiveLocal) {
+      const elapsed = Date.now() - dashStartTime;
+      const progress = Math.min(elapsed / dashDuration, 1);
+      // Di chuyển đều (linear)
+      const eased = progress; // Không dùng easeOut nữa
+      const newPos: [number, number, number] = [
+        dashStart[0] + (dashTarget[0] - dashStart[0]) * eased,
+        dashStart[1] + (dashTarget[1] - dashStart[1]) * eased,
+        dashStart[2] + (dashTarget[2] - dashStart[2]) * eased,
+      ];
+      setCurrentPosition(newPos);
+      if (progress >= 1) {
+        setDashActiveLocal(false);
+        setCurrentPosition(dashTarget); // Giữ vị trí mới
+        resetAnimation(); // Reset animation sau khi dash xong
+      }
+    }
+  });
 
-    // Easing function for smooth dash movement
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    const easedProgress = easeOut(progress);
+  // Click chuột phải để di chuyển Yasuo
+  useEffect(() => {
+    if (!gl || !camera) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (event.button === 2) {
+        // Right click
+        const rect = gl.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          -((event.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const intersection = new THREE.Vector3();
+        raycaster.ray.intersectPlane(plane, intersection);
+        setDashStart(currentPosition);
+        setDashTarget([intersection.x, intersection.y, intersection.z]);
+        setDashStartTime(Date.now());
+        setDashActiveLocal(true);
+        // Tính góc hướng về đích
+        const dx = intersection.x - currentPosition[0];
+        const dz = intersection.z - currentPosition[2];
+        const angle = Math.atan2(dx, dz);
+        setCharacterRotationY(angle);
+        // Play animation 27 khi click chuột phải
+        if (mixerRef.current && animations && animations[27]) {
+          if (actionRef.current) {
+            actionRef.current.stop();
+            actionRef.current = null;
+          }
+          const clip = animations[27];
+          const animAction = mixerRef.current.clipAction(clip);
+          animAction.reset().setLoop(THREE.LoopOnce, 0).clampWhenFinished =
+            true;
+          animAction.play();
+          actionRef.current = animAction;
+        }
+      }
+    };
+    gl.domElement.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      gl.domElement.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [camera, gl, currentPosition, animations]);
 
-    // Interpolate between start and target positions
-    const currentPosition: [number, number, number] = [
-      dashStartPosition[0] +
-        (dashTargetPosition[0] - dashStartPosition[0]) * easedProgress,
-      dashStartPosition[1] +
-        (dashTargetPosition[1] - dashStartPosition[1]) * easedProgress,
-      dashStartPosition[2] +
-        (dashTargetPosition[2] - dashStartPosition[2]) * easedProgress,
-    ];
-
-    return currentPosition;
-  };
-
-  const currentPosition = getDashPosition();
-
+  // Thay currentPosition vào vị trí nhân vật
   return (
     <group
       ref={groupRef}
       position={currentPosition}
-      rotation={[
-        rotation[0] +
-          humorousAnimation.groupRotation[0] +
-          ultimateAnimation.groupRotation[0],
-        rotation[1] +
-          humorousAnimation.groupRotation[1] +
-          ultimateAnimation.groupRotation[1],
-        rotation[2] +
-          humorousAnimation.groupRotation[2] +
-          ultimateAnimation.groupRotation[2],
-      ]}
+      rotation={[0, characterRotationY, 0]}
       scale={scale}>
-      {/* Placeholder Yasuo in wheelchair character made of basic shapes */}
-      <group position={[0, 0.5, 0]}>
-        {/* Head */}
-        <mesh position={[0, 1.5, 0]}>
-          <sphereGeometry args={[0.3, 16, 16]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
-
-        {/* Body - moves forward during thrust */}
-        <mesh
-          ref={bodyRef}
-          position={[0, 0.5, animation.bodyForward]}
-          scale={[
-            ultimateAnimation.bodyScale,
-            ultimateAnimation.bodyScale,
-            ultimateAnimation.bodyScale,
-          ]}>
-          <boxGeometry args={[0.8, 1, 0.3]} />
-          <meshStandardMaterial
-            color={
-              action === "Q_ATTACK"
-                ? "#4ECDC4"
-                : action === "R_ABILITY"
-                ? ultimateAnimation.bodyColor
-                : humorousAnimation.bodyColor
-            }
-          />
-        </mesh>
-
-        {/* Right Arm - animated for sword thrust */}
-        <mesh
-          ref={rightArmRef}
-          position={[0.6 + animation.armExtension, 0.8, 0]}
-          rotation={animation.rightArmRotation}
-          scale={[
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-          ]}>
-          <boxGeometry args={[0.2, 0.6, 0.2]} />
-          <meshStandardMaterial
-            color={
-              action === "Q_ATTACK"
-                ? "#FF6B6B"
-                : action === "R_ABILITY"
-                ? ultimateAnimation.armColor
-                : humorousAnimation.armColor
-            }
-          />
-        </mesh>
-
-        {/* Left Arm - supporting arm during thrust */}
-        <mesh
-          ref={leftArmRef}
-          position={[-0.6, 0.8, 0]}
-          rotation={animation.leftArmRotation}
-          scale={[
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-            ultimateAnimation.armScale,
-          ]}>
-          <boxGeometry args={[0.2, 0.6, 0.2]} />
-          <meshStandardMaterial
-            color={
-              action === "R_ABILITY"
-                ? ultimateAnimation.armColor
-                : humorousAnimation.armColor
-            }
-          />
-        </mesh>
-
-        {/* Wheelchair seat */}
-        <mesh position={[0, -0.2, 0]}>
-          <boxGeometry args={[1.2, 0.1, 0.8]} />
-          <meshStandardMaterial color="#696969" />
-        </mesh>
-
-        {/* Wheelchair back */}
-        <mesh position={[0, 0.3, -0.4]}>
-          <boxGeometry args={[1.2, 0.8, 0.1]} />
-          <meshStandardMaterial color="#696969" />
-        </mesh>
-
-        {/* Wheels */}
-        <mesh position={[0.7, -0.5, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-          <meshStandardMaterial color="#2F4F4F" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-          <meshStandardMaterial color="#2F4F4F" />
-        </mesh>
-
-        {/* Wheel spokes */}
-        <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-        <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.02, 0.02]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-      </group>
+      {/* Render actual Yasuo model if loaded successfully */}
+      {modelLoaded && !modelError && (
+        <primitive
+          object={modelScene}
+          position={[0, 0, 0]}
+          scale={[scale, scale, scale]}
+        />
+      )}
     </group>
   );
 }
 
-// TODO: When the actual GLB model is available, uncomment this code:
-/*
-import { useGLTF } from "@react-three/drei";
-
-export function Character({
-  modelPath = "/models/yasuo-wheelchair.glb",
-  scale = 1,
-  position = [0, 0, 0],
-  rotation = [0, 0, 0],
-}: CharacterProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const [hasError, setHasError] = useState(false);
-
-  // Load the 3D model using useGLTF with error handling
-  const { scene, nodes, materials } = useGLTF(modelPath);
-
-  // Error handling for model loading
-  useEffect(() => {
-    if (!scene) {
-      setHasError(true);
-      console.error(`Failed to load model: ${modelPath}`);
-    } else {
-      setHasError(false);
-    }
-  }, [scene, modelPath]);
-
-  // If there's an error, render a placeholder cube
-  if (hasError) {
-    return (
-      <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
-        <mesh>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="#ff0000" />
-        </mesh>
-      </group>
-    );
-  }
-
-  return (
-    <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
-      <primitive object={scene} />
-    </group>
-  );
-}
-
-// Preload the model to avoid loading delays
-useGLTF.preload("/models/yasuo-wheelchair.glb");
-*/
+// Preload the Yasuo model to avoid loading delays
+useGLTF.preload("/models/Yasuo_Base.glb");
