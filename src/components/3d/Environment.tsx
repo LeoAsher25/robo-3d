@@ -20,9 +20,9 @@ export function Environment() {
       {/* Ground Plane */}
       <Plane
         ref={groundRef}
-        args={[20, 20]}
+        args={[10000, 10000]} // Ground rất lớn
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -1, 0]}>
+        position={[0, 0, 0]}>
         <meshStandardMaterial color="#2a2a2a" roughness={0.8} metalness={0.1} />
       </Plane>
 

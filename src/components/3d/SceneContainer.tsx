@@ -25,7 +25,7 @@ export default function SceneContainer({ children }: SceneContainerProps) {
   const { position: characterPosition } = useCharacterStore();
 
   return (
-    <div className="w-[80vw] h-screen">
+    <div className="w-[100vw] h-screen">
       <Canvas
         camera={{ position: [0, 5, 10], fov: 75 }}
         style={{ background: "#1a1a1a" }}>

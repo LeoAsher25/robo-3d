@@ -49,6 +49,7 @@ export function Character({
     ultimateActive,
     ultimateStartTime,
     ultimateDuration,
+    resetAnimation,
   } = useCharacterStore();
 
   // Animation timing
@@ -135,6 +136,7 @@ export function Character({
       const onFinished = () => {
         // Ví dụ: reset action về "" hoặc trạng thái idle
         // setAction(""); // nếu bạn có hàm setAction
+        resetAnimation();
       };
       animAction.getMixer().addEventListener("finished", onFinished);
 
@@ -327,6 +329,9 @@ export function Character({
   const [dashStartTime, setDashStartTime] = useState(0);
   const dashDuration = 500; // ms
 
+  // Thêm state cho hướng quay nhân vật
+  const [characterRotationY, setCharacterRotationY] = useState(0);
+
   // Khi dashActive từ store bật lên, bắt đầu dash nội bộ
   useEffect(() => {
     if (dashActive && dashTargetPosition && dashStartPosition) {
@@ -342,9 +347,8 @@ export function Character({
     if (dashActiveLocal) {
       const elapsed = Date.now() - dashStartTime;
       const progress = Math.min(elapsed / dashDuration, 1);
-      // Easing
-      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-      const eased = easeOut(progress);
+      // Di chuyển đều (linear)
+      const eased = progress; // Không dùng easeOut nữa
       const newPos: [number, number, number] = [
         dashStart[0] + (dashTarget[0] - dashStart[0]) * eased,
         dashStart[1] + (dashTarget[1] - dashStart[1]) * eased,
@@ -354,6 +358,7 @@ export function Character({
       if (progress >= 1) {
         setDashActiveLocal(false);
         setCurrentPosition(dashTarget); // Giữ vị trí mới
+        resetAnimation(); // Reset animation sau khi dash xong
       }
     }
   });
@@ -378,6 +383,11 @@ export function Character({
         setDashTarget([intersection.x, intersection.y, intersection.z]);
         setDashStartTime(Date.now());
         setDashActiveLocal(true);
+        // Tính góc hướng về đích
+        const dx = intersection.x - currentPosition[0];
+        const dz = intersection.z - currentPosition[2];
+        const angle = Math.atan2(dx, dz);
+        setCharacterRotationY(angle);
         // Play animation 27 khi click chuột phải
         if (mixerRef.current && animations && animations[27]) {
           if (actionRef.current) {
@@ -404,17 +414,7 @@ export function Character({
     <group
       ref={groupRef}
       position={currentPosition}
-      rotation={[
-        rotation[0] +
-          humorousAnimation.groupRotation[0] +
-          ultimateAnimation.groupRotation[0],
-        rotation[1] +
-          humorousAnimation.groupRotation[1] +
-          ultimateAnimation.groupRotation[1],
-        rotation[2] +
-          humorousAnimation.groupRotation[2] +
-          ultimateAnimation.groupRotation[2],
-      ]}
+      rotation={[0, characterRotationY, 0]}
       scale={scale}>
       {/* Render actual Yasuo model if loaded successfully */}
       {modelLoaded && !modelError && (
@@ -423,120 +423,6 @@ export function Character({
           position={[0, 0, 0]}
           scale={[scale, scale, scale]}
         />
-      )}
-
-      {/* Fallback to placeholder character if model fails to load */}
-      {(!modelLoaded || modelError) && (
-        <group position={[0, 0.5, 0]}>
-          {/* Head */}
-          <mesh position={[0, 1.5, 0]}>
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshStandardMaterial color="#8B4513" />
-          </mesh>
-
-          {/* Body - moves forward during thrust */}
-          <mesh
-            ref={bodyRef}
-            position={[0, 0.5, animation.bodyForward]}
-            scale={[
-              ultimateAnimation.bodyScale,
-              ultimateAnimation.bodyScale,
-              ultimateAnimation.bodyScale,
-            ]}>
-            <boxGeometry args={[0.8, 1, 0.3]} />
-            <meshStandardMaterial
-              color={
-                action === "Q_ATTACK"
-                  ? "#4ECDC4"
-                  : action === "R_ABILITY"
-                  ? ultimateAnimation.bodyColor
-                  : humorousAnimation.bodyColor
-              }
-            />
-          </mesh>
-
-          {/* Right Arm - animated for sword thrust */}
-          <mesh
-            ref={rightArmRef}
-            position={[0.6 + animation.armExtension, 0.8, 0]}
-            rotation={animation.rightArmRotation}
-            scale={[
-              ultimateAnimation.armScale,
-              ultimateAnimation.armScale,
-              ultimateAnimation.armScale,
-            ]}>
-            <boxGeometry args={[0.2, 0.6, 0.2]} />
-            <meshStandardMaterial
-              color={
-                action === "Q_ATTACK"
-                  ? "#FF6B6B"
-                  : action === "R_ABILITY"
-                  ? ultimateAnimation.armColor
-                  : humorousAnimation.armColor
-              }
-            />
-          </mesh>
-
-          {/* Left Arm - supporting arm during thrust */}
-          <mesh
-            ref={leftArmRef}
-            position={[-0.6, 0.8, 0]}
-            rotation={animation.leftArmRotation}
-            scale={[
-              ultimateAnimation.armScale,
-              ultimateAnimation.armScale,
-              ultimateAnimation.armScale,
-            ]}>
-            <boxGeometry args={[0.2, 0.6, 0.2]} />
-            <meshStandardMaterial
-              color={
-                action === "R_ABILITY"
-                  ? ultimateAnimation.armColor
-                  : humorousAnimation.armColor
-              }
-            />
-          </mesh>
-
-          {/* Wheelchair seat */}
-          <mesh position={[0, -0.2, 0]}>
-            <boxGeometry args={[1.2, 0.1, 0.8]} />
-            <meshStandardMaterial color="#696969" />
-          </mesh>
-
-          {/* Wheelchair back */}
-          <mesh position={[0, 0.3, -0.4]}>
-            <boxGeometry args={[1.2, 0.8, 0.1]} />
-            <meshStandardMaterial color="#696969" />
-          </mesh>
-
-          {/* Wheels */}
-          <mesh position={[0.7, -0.5, 0]}>
-            <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-            <meshStandardMaterial color="#2F4F4F" />
-          </mesh>
-          <mesh position={[-0.7, -0.5, 0]}>
-            <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-            <meshStandardMaterial color="#2F4F4F" />
-          </mesh>
-
-          {/* Wheel spokes */}
-          <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-            <boxGeometry args={[0.6, 0.02, 0.02]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-          <mesh position={[0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-            <boxGeometry args={[0.6, 0.02, 0.02]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-          <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, Math.PI / 4]}>
-            <boxGeometry args={[0.6, 0.02, 0.02]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-          <mesh position={[-0.7, -0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
-            <boxGeometry args={[0.6, 0.02, 0.02]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-        </group>
       )}
     </group>
   );

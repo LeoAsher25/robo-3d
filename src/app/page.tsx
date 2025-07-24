@@ -9,8 +9,8 @@ export default function Home() {
   return (
     <main className="flex gap-4 w-screen h-screen">
       <SceneContainer />
-      <TestControls />
-      <ModelStatus />
+      {/* <TestControls />
+      <ModelStatus /> */}
       {/* <ModelInfo modelPath="/models/Yasuo_Base.glb" /> */}
       {/* <Scene /> */}
       {/* <AnimatedCharacterScene /> */}
