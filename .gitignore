@@ -89,8 +89,7 @@ jspm_packages/
 dist
 
 # Gatsby files
-.cache/
-public
+.cache/ 
 
 # Vuepress build output
 .vuepress/dist
@@ -173,54 +172,6 @@ coverage/
 .tmp/
 .temp/
 
-# 3D Model files (if you want to ignore large model files)
-*.glb
-*.gltf
-*.obj
-*.fbx
-*.dae
-*.3ds
-*.blend
-
-# Large media files
-*.mp4
-*.mov
-*.avi
-*.mkv
-*.wmv
-*.flv
-*.webm
-
-# Audio files
-*.mp3
-*.wav
-*.flac
-*.aac
-*.ogg
-
-# Image files (if you want to ignore large images)
-*.psd
-*.ai
-*.eps
-*.tiff
-*.bmp
-
-# Archive files
-*.zip
-*.rar
-*.7z
-*.tar
-*.gz
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# Backup files
-*.bak
-*.backup
-*.old
 
 # Lock files (keep package-lock.json but ignore others)
 yarn.lock
